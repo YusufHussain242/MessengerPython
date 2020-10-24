@@ -5,3 +5,4 @@ serverSocket.connect((socket.gethostname(), 7777))
 
 message = serverSocket.recv(1024)
 print(message.decode("utf-8"))
+input()
