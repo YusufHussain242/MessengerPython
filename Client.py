@@ -1,2 +1,1 @@
-print("This is the client")
-input()
+print("Hello world")
