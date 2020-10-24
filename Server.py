@@ -8,3 +8,5 @@ while True:
     clientSocket , address = serverSocket.accept()
     print(f"Connection from {address} has been established!")
     clientSocket.send(bytes("Welcome to the server!" , "utf-8"))
+
+input()
