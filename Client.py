@@ -14,4 +14,4 @@ while True:
 
   print(fullMessage.decode("utf-8"))
 
-input()
+input("End")
