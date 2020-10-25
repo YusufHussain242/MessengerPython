@@ -10,4 +10,6 @@ while True:
 print("Changes on atom")
 print("Even more changes on atom")
 
+print("Random code")
+
 input()
