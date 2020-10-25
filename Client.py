@@ -7,6 +7,6 @@ while True:
     message = serverSocket.recv(8)
     print(message.decode("utf-8"))
 
-print("Changes on repl.it")
+print("Changes on atom")
 
 input()
