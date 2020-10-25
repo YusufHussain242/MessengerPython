@@ -10,4 +10,6 @@ while True:
 print("Changes on repl.it")
 print("Even more changes on repl.it")
 
+print("Sicko mode")
+
 input()
