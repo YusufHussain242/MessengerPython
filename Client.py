@@ -7,8 +7,10 @@ while True:
     message = serverSocket.recv(8)
     print(message.decode("utf-8"))
 
-print("Changes on repl.it")
-print("Even more changes on repl.it")
+print("Changes on atom")
+print("Even more changes on atom")
+
+print("Random code")
 
 print("Sicko mode")
 
