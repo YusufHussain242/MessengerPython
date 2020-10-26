@@ -2,10 +2,12 @@ import socket
 
 
 def sendData(data, _socket):
-    dataBytes = bytes(f"{len(data):<10}" + data, "utf-8")
-    print(dataBytes)
-    _socket.send(dataBytes)
+    dataBytes = bytearray(data, "utf-8")
+    dataBytes[0:0] = len(data).to_bytes(headerSize, "little")
+    _socket.send(bytes(dataBytes))
 
+
+headerSize = 4
 
 serverSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 serverSocket.bind((socket.gethostname(), 7777))
