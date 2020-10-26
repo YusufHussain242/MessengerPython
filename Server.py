@@ -1,4 +1,15 @@
 import socket
+import threading
+
+headerSize = 4
+clients = []
+serverSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+serverSocket.bind((socket.gethostname(), 7777))
+
+
+def handleDisconnect(_clientSocket, _address):
+    print(f"{_address} has disconnected")
+    clients.remove(_clientSocket)
 
 
 def sendData(data, _socket):
@@ -7,16 +18,35 @@ def sendData(data, _socket):
     _socket.send(bytes(dataBytes))
 
 
-headerSize = 4
+def recieveData(_clientSocket, _address):
+    print(f"{_address} has connected")
+    while True:
+        packetSize = 0
+        message = ""
 
-serverSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-serverSocket.bind((socket.gethostname(), 7777))
-serverSocket.listen(10)
+        try:
+            message = _clientSocket.recv(headerSize)
+        except ConnectionResetError:
+            handleDisconnect(_clientSocket, _address)
+            break
+
+        if len(message) > 0:
+            packetSize = int.from_bytes(message, "little")
+
+            message = _clientSocket.recv(packetSize)
+            message = message.decode("utf-8")
+
+            print(message)
+        else:
+            handleDisconnect(_clientSocket, _address)
+            break
+
 
 while True:
+    serverSocket.listen(10)
     clientSocket, address = serverSocket.accept()
-    print(f"Connection from {address} has been established!")
-    sendData("Welcome to the server!", clientSocket)
-    clientSocket.close()
+    thread = threading.Thread(target=recieveData, args=[clientSocket, address])
+    thread.start()
+    clients.append(clientSocket)
 
 input()
