@@ -12,10 +12,27 @@ def handleDisconnect(_clientSocket, _address):
     clients.remove(_clientSocket)
 
 
-def sendData(data, _socket):
+def sendData(data, _sockets):
     dataBytes = bytearray(data, "utf-8")
     dataBytes[0:0] = len(data).to_bytes(headerSize, "little")
-    _socket.send(bytes(dataBytes))
+    dataBytes = bytes(dataBytes)
+    for _socket in _sockets:
+        _socket.send(dataBytes)
+
+
+def piggybackData(data, exemptions):
+    dataBytes = bytearray(data, "utf-8")
+    dataBytes[0:0] = len(data).to_bytes(headerSize, "little")
+    dataBytes = bytes(dataBytes)
+    culledClients = []
+    for c in clients:
+        culledClients.append(c)
+
+    for e in exemptions:
+        culledClients.remove(e)
+
+    for client in culledClients:
+        client.send(dataBytes)
 
 
 def recieveData(_clientSocket, _address):
@@ -37,6 +54,7 @@ def recieveData(_clientSocket, _address):
             message = message.decode("utf-8")
 
             print(message)
+            piggybackData(message, [_clientSocket])
         else:
             handleDisconnect(_clientSocket, _address)
             break
