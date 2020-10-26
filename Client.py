@@ -19,6 +19,10 @@ class V(Enum):
     printMessage = 2
 
 
+vars = []
+for var in V:
+    vars.append(0)
+
 headerSize = 4
 serverSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 serverSocket.connect((socket.gethostname(), 7777))
@@ -40,11 +44,35 @@ def recieveData():
             varName = buffer[headerSize+1]
 
             buffer = serverSocket.recv(packetSize)
-            buffer = struct.unpack(f"{len(buffer)}s", buffer)
-
-            print(dataType, varName, buffer)
+            handleData(buffer, dataType, varName)
+            print(vars[varName])
         else:
             break
+
+
+def handleData(data, dataType, varName):
+    newData = ""
+
+    def caseString():
+        newData = struct.unpack(f"{len(data)}s", data)[0]
+        return newData.decode("utf-8")
+
+    def caseInt():
+        return struct.unpack("i", data)[0]
+
+    def caseFloat():
+        return struct.unpack("f", data)[0]
+
+    switch = {
+        T.string.value: caseString,
+        T.int.value: caseInt,
+        T.float.value: caseFloat
+    }
+    newData = switch.get(dataType)()
+
+    vars[varName] = newData
+
+    return newData
 
 
 def encodeData(data, dataType, varName):

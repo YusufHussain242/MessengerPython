@@ -18,6 +18,10 @@ class V(Enum):
     printMessage = 2
 
 
+vars = []
+for var in V:
+    vars.append(0)
+
 headerSize = 4
 clients = []
 serverSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -61,6 +65,31 @@ def encodeData(data, dataType, varName):
     return bytes(dataBytes)
 
 
+def handleData(data, dataType, varName):
+    newData = ""
+
+    def caseString():
+        newData = struct.unpack(f"{len(data)}s", data)[0]
+        return newData.decode("utf-8")
+
+    def caseInt():
+        return struct.unpack("i", data)[0]
+
+    def caseFloat():
+        return struct.unpack("f", data)[0]
+
+    switch = {
+        T.string.value: caseString,
+        T.int.value: caseInt,
+        T.float.value: caseFloat
+    }
+    newData = switch.get(dataType)()
+
+    vars[varName] = newData
+
+    return newData
+
+
 def sendData(data, dataType, varName, _sockets):
     dataBytes = encodeData(data, dataType, varName)
     for _socket in _sockets:
@@ -101,14 +130,13 @@ def recieveData(_clientSocket, _address):
         if len(buffer) > 0:
             packetSize = struct.unpack("i", buffer[:headerSize])[0]
             dataType = buffer[headerSize]
-            varType = buffer[headerSize+1]
+            varName = buffer[headerSize+1]
 
             buffer = _clientSocket.recv(packetSize)
             fullBuffer[len(fullBuffer):len(fullBuffer)] = buffer
+            handleData(buffer, dataType, varName)
+            print(vars[varName])
 
-            buffer = struct.unpack(f"{len(buffer)}s", buffer)
-
-            print(dataType, varType, buffer)
             broadcastData(fullBuffer, T.null, V.null, [_clientSocket], True)
         else:
             handleDisconnect(_clientSocket, _address)
@@ -129,5 +157,5 @@ listThread = threading.Thread(target=waitForConnect)
 listThread.start()
 while True:
     serverMessage = input()
-    broadcastData(serverMessage, T.string, V.printMessage, [])
+    broadcastData(serverMessage, T.string, V.printMessage, [], False)
 input()
