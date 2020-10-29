@@ -56,7 +56,7 @@ def sendData(data, varName, _sockets):
         _socket.send(dataBytes)
 
 
-def broadcastData(data, varName, exemptions, piggyback):
+def broadcastData(data, varName, exemptions=[], piggyback=False):
     if piggyback is False:
         dataBytes = encodeData(data, varName)
     else:
@@ -114,5 +114,5 @@ listThread = threading.Thread(target=waitForConnect)
 listThread.start()
 while True:
     serverMessage = input()
-    broadcastData([serverMessage], V.printMessage, [], False)
+    broadcastData([serverMessage], V.printMessage)
 input()
